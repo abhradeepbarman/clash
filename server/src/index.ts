@@ -2,7 +2,7 @@ import express, { Application, Request, Response } from "express";
 import "dotenv/config";
 import path from "path";
 import { fileURLToPath } from "url";
-import pug from "pug"
+import pug from "pug";
 import { sendEmail } from "./config/mail.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,13 +16,20 @@ app.use(express.urlencoded({ extended: false }));
 app.set("view engine", "pug");
 app.set("views", path.resolve(__dirname, "./views"));
 
+// Queues
+import "./jobs/index.js";
+import { emailQueue, emailQueueName } from "./jobs/EmailJob.js";
+
 app.get("/", async (req: Request, res: any) => {
-    // return res.render('welcome');
-    const body = pug.renderFile(__dirname + '/views/welcome.pug');
-    await sendEmail("dedogeg586@kelenson.com", "Testing Email", body);
+    const body = pug.renderFile(__dirname + "/views/welcome.pug");
+    await emailQueue.add(emailQueueName, {
+        to: "dedogeg586@kelenson.com",
+        subject: "Testing Testing 1234",
+        body: body,
+    });
     return res.json({
-        message: "Email sent successfully"
-    })
+        message: "Email sent successfully",
+    });
 });
 
 app.listen(PORT, () => {
