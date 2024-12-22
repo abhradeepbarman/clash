@@ -1,0 +1,64 @@
+doctype html
+html
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Email Verification - Clash
+    style.
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background-color: #4CAF50;
+        color: white;
+        text-align: center;
+        padding: 10px 20px;
+      }
+      .content {
+        padding: 20px;
+        text-align: center;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
+      .footer {
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+        padding: 10px;
+        border-top: 1px solid #dddddd;
+        background: #f9f9f9;
+      }
+  body
+    .container
+      .header
+        h1 Welcome to Clash!
+      .content
+        p Hi #{name},
+        p Thank you for signing up for Clash. To complete your registration, please verify your email address by clicking the button below:
+        a.button(href=`${url}` target="_blank") Verify Email
+        p If you're facing issues clicking the button, then here is
+        a(href=`${url}` target="_blank") link
+        p If you didn't create an account with Clash, you can safely ignore this email.
+      .footer
+        p © #{new Date().getFullYear()} Clash. All rights reserved.
