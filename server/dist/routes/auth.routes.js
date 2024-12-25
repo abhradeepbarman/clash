@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { registerSchema } from "../validators/auth.validators.js";
+import { loginSchema, registerSchema } from "../validators/auth.validators.js";
 import { ZodError } from "zod";
 import { formatError, renderEmailPug } from "../helper.js";
 import prisma from "../config/database.js";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import { emailQueue, emailQueueName } from "../jobs/EmailJob.js";
+import jwt from "jsonwebtoken";
 const router = Router();
 router.post("/register", async (req, res) => {
     try {
@@ -50,7 +51,59 @@ router.post("/register", async (req, res) => {
         });
     }
     catch (error) {
-        console.log("error", error);
+        if (error instanceof ZodError) {
+            const errors = formatError(error);
+            return res.status(422).json({
+                message: "Invalid data",
+                errors,
+            });
+        }
+        return res.status(500).json({
+            message: "Something went wrong. Please Try again!",
+        });
+    }
+});
+router.post("/login", async (req, res) => {
+    try {
+        const body = req.body;
+        const payload = loginSchema.parse(body);
+        const user = await prisma.user.findUnique({
+            where: {
+                email: payload.email,
+            },
+        });
+        if (!user || user == null) {
+            return res.status(422).json({
+                errors: {
+                    email: "No User found with this Email",
+                },
+            });
+        }
+        const isMatch = await bcrypt.compare(payload.password, user.password);
+        if (!isMatch) {
+            return res.status(422).json({
+                errors: {
+                    email: "Inavalid Credentials",
+                },
+            });
+        }
+        let jwtPayload = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        };
+        const token = jwt.sign(jwtPayload, process.env.SECRET_KEY, {
+            expiresIn: "365d",
+        });
+        return res.json({
+            message: "Logged in successfully",
+            data: {
+                ...jwtPayload,
+                token,
+            },
+        });
+    }
+    catch (error) {
         if (error instanceof ZodError) {
             const errors = formatError(error);
             return res.status(422).json({
